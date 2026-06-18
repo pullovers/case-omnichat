@@ -299,6 +299,12 @@ function Screen1({ onNext }: { onNext: (nome: string, email: string) => void }) 
     if (!valid) return;
     trackEvent('quiz_started');
     trackEvent('lead_captured', { lead_nome: nome, lead_email: email });
+    if (typeof window !== 'undefined' && (window as any).fbq) {
+      (window as any).fbq('track', 'Lead', {
+        content_name: 'Score Maturidade Chat Commerce',
+        content_category: 'Quiz',
+      });
+    }
     onNext(nome.trim(), email.trim());
   }
 
@@ -461,6 +467,12 @@ function Screen6({ state }: { state: QuizState }) {
       segmento: state.segmento,
       score_total: score,
     });
+    if (typeof window !== 'undefined' && (window as any).fbq) {
+      (window as any).fbq('track', 'Schedule', {
+        content_name: 'Consultoria FECBR 2026',
+        content_category: 'Estande OmniChat',
+      });
+    }
   }
 
   return (
