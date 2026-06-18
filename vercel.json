@@ -1,0 +1,5 @@
+{
+  "buildCommand": "cd 'Mobile app prototype creation' && npm install && npm run build",
+  "outputDirectory": "Mobile app prototype creation/dist",
+  "installCommand": "echo done"
+}
