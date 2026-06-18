@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
-  Shirt, Sparkles, Hammer, Armchair, ShoppingBag, Dumbbell,
-  GraduationCap, PawPrint, Gem, ShoppingCart,
+  Shirt, Sparkles, Armchair, ShoppingBag, Dumbbell,
+  GraduationCap, PawPrint, Gem, ShoppingCart, LayoutGrid,
   TrendingUp, ArrowRight, Clock, CheckCircle2
 } from 'lucide-react';
 
@@ -77,29 +77,29 @@ function useViewport() {
 // ── Data ─────────────────────────────────────────────────────────────────────
 
 const segments = [
-  { id: 'joias_acessorios', label: 'Joias e acessórios', Icon: Gem },
-  { id: 'bens_consumo', label: 'Bens de consumo', Icon: ShoppingCart },
-  { id: 'materiais_construcao', label: 'Materiais de construção', Icon: Hammer },
-  { id: 'moveis_decoracao', label: 'Móveis e decoração', Icon: Armchair },
-  { id: 'calcados', label: 'Calçados', Icon: ShoppingBag },
-  { id: 'artigos_esportivos', label: 'Artigos esportivos', Icon: Dumbbell },
-  { id: 'educacao', label: 'Educação', Icon: GraduationCap },
-  { id: 'pet_shop', label: 'Pet shop', Icon: PawPrint },
-  { id: 'vestuario', label: 'Vestuário', Icon: Shirt },
-  { id: 'beleza_perfumaria', label: 'Beleza e perfumaria', Icon: Sparkles },
+  { id: 'joias_acessorios',   label: 'Joias e acessórios',   Icon: Gem },
+  { id: 'bens_consumo',       label: 'Bens de consumo',       Icon: ShoppingCart },
+  { id: 'beleza_perfumaria',  label: 'Beleza e perfumaria',   Icon: Sparkles },
+  { id: 'moveis_decoracao',   label: 'Móveis e decoração',    Icon: Armchair },
+  { id: 'calcados',           label: 'Calçados',              Icon: ShoppingBag },
+  { id: 'artigos_esportivos', label: 'Artigos esportivos',    Icon: Dumbbell },
+  { id: 'educacao',           label: 'Educação',              Icon: GraduationCap },
+  { id: 'pet_shop',           label: 'Pet shop',              Icon: PawPrint },
+  { id: 'vestuario',          label: 'Vestuário',             Icon: Shirt },
+  { id: 'outros',             label: 'Outros',                Icon: LayoutGrid },
 ];
 
-const benchmarks: Record<string, { label: string; pct: string }> = {
-  joias_acessorios:     { label: 'Joias e acessórios',      pct: '28,52' },
-  bens_consumo:         { label: 'Bens de consumo',         pct: '17,96' },
-  materiais_construcao: { label: 'Materiais de construção', pct: '15,32' },
-  moveis_decoracao:     { label: 'Móveis e decoração',      pct: '14,53' },
-  calcados:             { label: 'Calçados',                pct: '12,7'  },
-  artigos_esportivos:   { label: 'Artigos esportivos',      pct: '12,35' },
-  educacao:             { label: 'Educação',                pct: '11,81' },
-  pet_shop:             { label: 'Pet shop',                pct: '11,58' },
-  vestuario:            { label: 'Vestuário',               pct: '10,66' },
-  beleza_perfumaria:    { label: 'Beleza e perfumaria',     pct: '7,19'  },
+const benchmarks: Record<string, { label: string; pct: string; labelPhrase?: string }> = {
+  joias_acessorios:   { label: 'Joias e acessórios',   pct: '28,52' },
+  bens_consumo:       { label: 'Bens de consumo',       pct: '17,96' },
+  beleza_perfumaria:  { label: 'Beleza e perfumaria',   pct: '7,19'  },
+  moveis_decoracao:   { label: 'Móveis e decoração',    pct: '14,53' },
+  calcados:           { label: 'Calçados',              pct: '12,7'  },
+  artigos_esportivos: { label: 'Artigos esportivos',    pct: '12,35' },
+  educacao:           { label: 'Educação',              pct: '11,81' },
+  pet_shop:           { label: 'Pet shop',              pct: '11,58' },
+  vestuario:          { label: 'Vestuário',             pct: '10,66' },
+  outros:             { label: 'Outros',                pct: '14,26', labelPhrase: 'diversos segmentos' },
 };
 
 const q1Options = [
@@ -508,7 +508,7 @@ function Screen6({ state }: { state: QuizState }) {
             <div>
               <p style={{ fontSize: 12, fontWeight: 500, color: D.textSecondary, lineHeight: 1.45, marginBottom: 3, fontFamily: 'Inter,sans-serif' }}>
                 Empresas de{' '}
-                <span style={{ color: D.textPrimary, fontWeight: 700 }}>{benchmark.label}</span>{' '}
+                <span style={{ color: D.textPrimary, fontWeight: 700 }}>{benchmark.labelPhrase ?? benchmark.label}</span>{' '}
                 têm em média{' '}
                 <span style={{ color: D.orange, fontWeight: 800 }}>{benchmark.pct}%</span>{' '}
                 do GMV influenciado pelo WhatsApp.
