@@ -513,7 +513,7 @@ function Screen6({ state }: { state: QuizState }) {
                 <span style={{ color: D.orange, fontWeight: 800 }}>{benchmark.pct}%</span>{' '}
                 do GMV influenciado pelo WhatsApp.
               </p>
-              <p style={{ fontSize: 10, color: D.textMuted, fontFamily: 'Inter,sans-serif', margin: 0 }}>Fonte: Chat Commerce Report 2026 — OmniChat</p>
+              <p style={{ fontSize: 10, color: D.textMuted, fontFamily: 'Inter,sans-serif', margin: 0 }}>Fonte: Chat Commerce Report 2025 — OmniChat</p>
             </div>
           </div>
         </div>
