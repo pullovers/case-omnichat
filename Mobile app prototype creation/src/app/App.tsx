@@ -139,8 +139,14 @@ function getClassificacao(score: number): { label: string; mensagem: string } {
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// Garante que window.dataLayer existe antes de qualquer push
+if (typeof window !== 'undefined') {
+  (window as any).dataLayer = (window as any).dataLayer || [];
+}
+
 function trackEvent(name: string, params?: Record<string, unknown>) {
-  if (typeof window !== 'undefined' && (window as any).dataLayer) {
+  if (typeof window !== 'undefined') {
+    (window as any).dataLayer = (window as any).dataLayer || [];
     (window as any).dataLayer.push({ event: name, ...params });
   }
 }
@@ -291,8 +297,8 @@ function Screen1({ onNext }: { onNext: (nome: string, email: string) => void }) 
 
   function handleNext() {
     if (!valid) return;
-    trackEvent('lead_captured', { nome, email });
     trackEvent('quiz_started');
+    trackEvent('lead_captured', { lead_nome: nome, lead_email: email });
     onNext(nome.trim(), email.trim());
   }
 
@@ -438,9 +444,23 @@ function Screen6({ state }: { state: QuizState }) {
   const { label: classificacao, mensagem } = getClassificacao(score);
   const benchmark = benchmarks[state.segmento] ?? benchmarks['vestuario'];
 
+  // Evento 3: dispara ao montar a tela, depois que score e classificacao estão calculados
+  useEffect(() => {
+    trackEvent('result_generated', {
+      score_total: score,
+      classificacao,
+      segmento: state.segmento,
+    });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   function handleConfirm() {
     setConfirmed(true);
-    trackEvent('consultation_scheduled', { janela_interesse: janela, segmento: state.segmento, score });
+    // Evento 4
+    trackEvent('consultation_scheduled', {
+      janela_interesse: janela,
+      segmento: state.segmento,
+      score_total: score,
+    });
   }
 
   return (
@@ -562,11 +582,7 @@ export default function App() {
   function handleScreen3(score: number) { setQuiz(q => ({ ...q, resposta_p1: score })); goTo(4); }
   function handleScreen4(score: number) { setQuiz(q => ({ ...q, resposta_p2: score })); goTo(5); }
   function handleScreen5(score: number) {
-    setQuiz(q => {
-      const updated = { ...q, resposta_p3: score };
-      trackEvent('result_generated', { score_total: updated.resposta_p1 + updated.resposta_p2 + score, segmento: updated.segmento });
-      return updated;
-    });
+    setQuiz(q => ({ ...q, resposta_p3: score }));
     goTo(6);
   }
 
