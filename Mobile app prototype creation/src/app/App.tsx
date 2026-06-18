@@ -4,6 +4,7 @@ import {
   GraduationCap, PawPrint, Gem, ShoppingCart,
   TrendingUp, ArrowRight, Clock, CheckCircle2
 } from 'lucide-react';
+
 function OmniChatLogo({ height = 28, style }: { height?: number; style?: React.CSSProperties }) {
   const scale = height / 35;
   return (
@@ -31,18 +32,18 @@ function OmniChatLogo({ height = 28, style }: { height?: number; style?: React.C
   );
 }
 
-// ── Dark theme tokens ────────────────────────────────────────────────────────
+// ── Design tokens ────────────────────────────────────────────────────────────
 const D = {
-  bg: '#0D0C0B',           // phone bg
-  surface: '#1A1917',      // card surface
-  surfaceHover: '#211F1C', // card elevated
-  border: '#2E2B27',       // default border
-  borderSubtle: '#242120', // subtle divider
+  bg: '#0D0C0B',
+  surface: '#1A1917',
+  surfaceHover: '#211F1C',
+  border: '#2E2B27',
+  borderSubtle: '#242120',
   textPrimary: '#F5F1EA',
   textSecondary: '#8A8178',
   textMuted: '#5C5650',
   yellow: '#FFD23F',
-  yellowBg: '#1D1A07',     // dark yellow tint for active cards
+  yellowBg: '#1D1A07',
   yellowText: '#FFD23F',
   orange: '#FF8A3D',
   purple: '#250616',
@@ -52,20 +53,47 @@ const D = {
   progressTrack: '#252220',
 };
 
+// ── Types ────────────────────────────────────────────────────────────────────
+
 type Screen = 1 | 2 | 3 | 4 | 5 | 6;
 
+interface QuizState {
+  nome: string;
+  email: string;
+  segmento: string;
+  resposta_p1: number;
+  resposta_p2: number;
+  resposta_p3: number;
+  horario_consultoria: string;
+}
+
+// ── Data ─────────────────────────────────────────────────────────────────────
+
 const segments = [
-  { id: 'moda', label: 'Moda e vestuário', Icon: Shirt },
-  { id: 'beleza', label: 'Beleza e perfumaria', Icon: Sparkles },
-  { id: 'construcao', label: 'Materiais de construção', Icon: Hammer },
-  { id: 'moveis', label: 'Móveis e decoração', Icon: Armchair },
+  { id: 'joias_acessorios', label: 'Joias e acessórios', Icon: Gem },
+  { id: 'bens_consumo', label: 'Bens de consumo', Icon: ShoppingCart },
+  { id: 'materiais_construcao', label: 'Materiais de construção', Icon: Hammer },
+  { id: 'moveis_decoracao', label: 'Móveis e decoração', Icon: Armchair },
   { id: 'calcados', label: 'Calçados', Icon: ShoppingBag },
-  { id: 'esportes', label: 'Artigos esportivos', Icon: Dumbbell },
+  { id: 'artigos_esportivos', label: 'Artigos esportivos', Icon: Dumbbell },
   { id: 'educacao', label: 'Educação', Icon: GraduationCap },
-  { id: 'pet', label: 'Pet shop', Icon: PawPrint },
-  { id: 'joias', label: 'Joias e acessórios', Icon: Gem },
-  { id: 'consumo', label: 'Bens de consumo', Icon: ShoppingCart },
+  { id: 'pet_shop', label: 'Pet shop', Icon: PawPrint },
+  { id: 'vestuario', label: 'Vestuário', Icon: Shirt },
+  { id: 'beleza_perfumaria', label: 'Beleza e perfumaria', Icon: Sparkles },
 ];
+
+const benchmarks: Record<string, { label: string; pct: string }> = {
+  joias_acessorios:    { label: 'Joias e acessórios',      pct: '28,52' },
+  bens_consumo:        { label: 'Bens de consumo',         pct: '17,96' },
+  materiais_construcao:{ label: 'Materiais de construção', pct: '15,32' },
+  moveis_decoracao:    { label: 'Móveis e decoração',      pct: '14,53' },
+  calcados:            { label: 'Calçados',                pct: '12,7'  },
+  artigos_esportivos:  { label: 'Artigos esportivos',      pct: '12,35' },
+  educacao:            { label: 'Educação',                pct: '11,81' },
+  pet_shop:            { label: 'Pet shop',                pct: '11,58' },
+  vestuario:           { label: 'Vestuário',               pct: '10,66' },
+  beleza_perfumaria:   { label: 'Beleza e perfumaria',     pct: '7,19'  },
+};
 
 const q1Options = [
   { id: 'q1a', label: 'Não usamos WhatsApp para vendas' },
@@ -94,7 +122,23 @@ const horarios = [
   { id: 'h3', label: '16h — 16h30' },
 ];
 
-// ── Shared components ────────────────────────────────────────────────────────
+// ── Logic ────────────────────────────────────────────────────────────────────
+
+function getClassificacao(score: number): { label: string; mensagem: string } {
+  if (score <= 3) return { label: 'Iniciante', mensagem: 'Você ainda não está aproveitando o potencial do chat commerce.' };
+  if (score <= 6) return { label: 'Em evolução', mensagem: 'Você já começou, mas está deixando receita na mesa.' };
+  return { label: 'Avançado', mensagem: 'Sua operação está madura — hora de escalar com IA.' };
+}
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function trackEvent(name: string, params?: Record<string, unknown>) {
+  if (typeof window !== 'undefined' && (window as any).dataLayer) {
+    (window as any).dataLayer.push({ event: name, ...params });
+  }
+}
+
+// ── Shared UI components ─────────────────────────────────────────────────────
 
 function ProgressBar({ step, total }: { step: number; total: number }) {
   return (
@@ -133,7 +177,7 @@ function PrimaryButton({
 }) {
   return (
     <button
-      onClick={onClick}
+      onClick={disabled ? undefined : onClick}
       disabled={disabled}
       style={{
         width: '100%',
@@ -188,9 +232,7 @@ function SelectCard({
 }
 
 function Divider() {
-  return (
-    <div style={{ height: 1, backgroundColor: D.borderSubtle, margin: '14px 0' }} />
-  );
+  return <div style={{ height: 1, backgroundColor: D.borderSubtle, margin: '14px 0' }} />;
 }
 
 function Tag({ children }: { children: React.ReactNode }) {
@@ -215,10 +257,10 @@ function Tag({ children }: { children: React.ReactNode }) {
 
 // ── Screen 1 — Lead Capture ──────────────────────────────────────────────────
 
-function Screen1({ onNext }: { onNext: () => void }) {
+function Screen1({ onNext }: { onNext: (nome: string, email: string) => void }) {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
-  const valid = nome.trim().length > 1 && email.includes('@') && email.includes('.');
+  const valid = nome.trim().length >= 2 && EMAIL_REGEX.test(email);
 
   const inputStyle: React.CSSProperties = {
     width: '100%',
@@ -234,6 +276,13 @@ function Screen1({ onNext }: { onNext: () => void }) {
     caretColor: D.yellow,
   };
 
+  function handleNext() {
+    if (!valid) return;
+    trackEvent('lead_captured', { nome, email });
+    trackEvent('quiz_started');
+    onNext(nome.trim(), email.trim());
+  }
+
   return (
     <div
       style={{
@@ -244,12 +293,10 @@ function Screen1({ onNext }: { onNext: () => void }) {
         backgroundColor: D.bg,
       }}
     >
-      {/* Logo */}
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 28 }}>
         <OmniChatLogo height={30} />
       </div>
 
-      {/* Hero card */}
       <div
         style={{
           background: `linear-gradient(145deg, #1A0D22 0%, #0F0810 100%)`,
@@ -261,7 +308,6 @@ function Screen1({ onNext }: { onNext: () => void }) {
           overflow: 'hidden',
         }}
       >
-        {/* decorative glow */}
         <div
           style={{
             position: 'absolute',
@@ -315,7 +361,6 @@ function Screen1({ onNext }: { onNext: () => void }) {
         </p>
       </div>
 
-      {/* Form */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 14, flex: 1 }}>
         <input
           type="text"
@@ -333,7 +378,7 @@ function Screen1({ onNext }: { onNext: () => void }) {
         />
       </div>
 
-      <PrimaryButton onClick={valid ? onNext : undefined} disabled={!valid}>
+      <PrimaryButton onClick={handleNext} disabled={!valid}>
         Quero ver meu diagnóstico <ArrowRight size={16} />
       </PrimaryButton>
 
@@ -355,8 +400,8 @@ function Screen1({ onNext }: { onNext: () => void }) {
 
 // ── Screen 2 — Segmento ──────────────────────────────────────────────────────
 
-function Screen2({ onNext }: { onNext: () => void }) {
-  const [selected, setSelected] = useState('');
+function Screen2({ initialValue, onNext }: { initialValue: string; onNext: (segmento: string) => void }) {
+  const [selected, setSelected] = useState(initialValue);
 
   return (
     <div
@@ -383,25 +428,10 @@ function Screen2({ onNext }: { onNext: () => void }) {
         Qual é o segmento do seu negócio?
       </h2>
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: 8,
-          flex: 1,
-        }}
-      >
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, flex: 1 }}>
         {segments.map(({ id, label, Icon }) => (
           <SelectCard key={id} selected={selected === id} onClick={() => setSelected(id)}>
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'flex-start',
-                gap: 7,
-                padding: '11px 11px',
-              }}
-            >
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 7, padding: '11px 11px' }}>
               <div
                 style={{
                   width: 30,
@@ -435,7 +465,7 @@ function Screen2({ onNext }: { onNext: () => void }) {
       </div>
 
       <div style={{ marginTop: 14 }}>
-        <PrimaryButton onClick={selected ? onNext : undefined} disabled={!selected}>
+        <PrimaryButton onClick={selected ? () => onNext(selected) : undefined} disabled={!selected}>
           Continuar <ArrowRight size={16} />
         </PrimaryButton>
       </div>
@@ -443,13 +473,14 @@ function Screen2({ onNext }: { onNext: () => void }) {
   );
 }
 
-// ── Shared question screen ───────────────────────────────────────────────────
+// ── Shared question screen (Telas 3, 4, 5) ───────────────────────────────────
 
 function QuestionScreen({
   step,
   tag,
   title,
   options,
+  initialIndex,
   onNext,
   nextLabel = 'Continuar',
 }: {
@@ -457,10 +488,11 @@ function QuestionScreen({
   tag: string;
   title: string;
   options: { id: string; label: string }[];
-  onNext: () => void;
+  initialIndex: number;
+  onNext: (score: number) => void;
   nextLabel?: string;
 }) {
-  const [selected, setSelected] = useState('');
+  const [selectedIndex, setSelectedIndex] = useState<number>(initialIndex);
 
   return (
     <div
@@ -490,15 +522,15 @@ function QuestionScreen({
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 9, flex: 1 }}>
-        {options.map(({ id, label }) => (
-          <SelectCard key={id} selected={selected === id} onClick={() => setSelected(id)}>
+        {options.map(({ id, label }, index) => (
+          <SelectCard key={id} selected={selectedIndex === index} onClick={() => setSelectedIndex(index)}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '15px 16px' }}>
               <div
                 style={{
                   width: 18,
                   height: 18,
                   borderRadius: '50%',
-                  border: selected === id ? `5px solid ${D.yellow}` : `1.5px solid ${D.border}`,
+                  border: selectedIndex === index ? `5px solid ${D.yellow}` : `1.5px solid ${D.border}`,
                   flexShrink: 0,
                   backgroundColor: 'transparent',
                   transition: 'all 0.15s',
@@ -508,8 +540,8 @@ function QuestionScreen({
               <span
                 style={{
                   fontSize: 13,
-                  fontWeight: selected === id ? 600 : 400,
-                  color: selected === id ? D.textPrimary : D.textSecondary,
+                  fontWeight: selectedIndex === index ? 600 : 400,
+                  color: selectedIndex === index ? D.textPrimary : D.textSecondary,
                   lineHeight: 1.45,
                   fontFamily: 'Inter,sans-serif',
                   transition: 'color 0.15s, font-weight 0.15s',
@@ -523,7 +555,10 @@ function QuestionScreen({
       </div>
 
       <div style={{ marginTop: 16 }}>
-        <PrimaryButton onClick={selected ? onNext : undefined} disabled={!selected}>
+        <PrimaryButton
+          onClick={selectedIndex >= 0 ? () => onNext(selectedIndex) : undefined}
+          disabled={selectedIndex < 0}
+        >
           {nextLabel} <ArrowRight size={16} />
         </PrimaryButton>
       </div>
@@ -533,9 +568,18 @@ function QuestionScreen({
 
 // ── Screen 6 — Resultado ─────────────────────────────────────────────────────
 
-function Screen6() {
-  const [horario, setHorario] = useState('');
+function Screen6({ state }: { state: QuizState }) {
+  const [horario, setHorario] = useState(state.horario_consultoria);
   const [confirmed, setConfirmed] = useState(false);
+
+  const score = state.resposta_p1 + state.resposta_p2 + state.resposta_p3;
+  const { label: classificacao, mensagem } = getClassificacao(score);
+  const benchmark = benchmarks[state.segmento] ?? benchmarks['vestuario'];
+
+  function handleConfirm() {
+    setConfirmed(true);
+    trackEvent('consultation_scheduled', { horario, segmento: state.segmento, score });
+  }
 
   return (
     <div
@@ -599,71 +643,30 @@ function Screen6() {
               fontFamily: 'Inter,sans-serif',
             }}
           >
-            Em evolução
+            {classificacao}
           </div>
           <OmniChatLogo height={22} style={{ opacity: 0.6 }} />
         </div>
 
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, marginBottom: 6 }}>
-          <span
-            style={{
-              fontSize: 52,
-              fontWeight: 800,
-              color: '#FFFFFF',
-              lineHeight: 1,
-              fontFamily: 'Inter,sans-serif',
-            }}
-          >
-            5
+          <span style={{ fontSize: 52, fontWeight: 800, color: '#FFFFFF', lineHeight: 1, fontFamily: 'Inter,sans-serif' }}>
+            {score}
           </span>
-          <span
-            style={{
-              fontSize: 26,
-              fontWeight: 500,
-              color: D.textMuted,
-              lineHeight: 1,
-              paddingBottom: 7,
-              fontFamily: 'Inter,sans-serif',
-            }}
-          >
+          <span style={{ fontSize: 26, fontWeight: 500, color: D.textMuted, lineHeight: 1, paddingBottom: 7, fontFamily: 'Inter,sans-serif' }}>
             /9
           </span>
-          <span
-            style={{
-              fontSize: 13,
-              fontWeight: 700,
-              color: D.yellow,
-              paddingBottom: 10,
-              marginLeft: 10,
-              fontFamily: 'Inter,sans-serif',
-            }}
-          >
+          <span style={{ fontSize: 13, fontWeight: 700, color: D.yellow, paddingBottom: 10, marginLeft: 10, fontFamily: 'Inter,sans-serif' }}>
             Seu score
           </span>
         </div>
 
-        <p
-          style={{
-            fontSize: 13,
-            color: D.textSecondary,
-            lineHeight: 1.45,
-            fontFamily: 'Inter,sans-serif',
-          }}
-        >
-          Você já começou, mas está deixando receita na mesa.
+        <p style={{ fontSize: 13, color: D.textSecondary, lineHeight: 1.45, fontFamily: 'Inter,sans-serif' }}>
+          {mensagem}
         </p>
       </div>
 
       {/* Content */}
-      <div
-        style={{
-          flex: 1,
-          padding: '18px 20px 20px',
-          display: 'flex',
-          flexDirection: 'column',
-          overflowY: 'hidden',
-        }}
-      >
+      <div style={{ flex: 1, padding: '18px 20px 20px', display: 'flex', flexDirection: 'column', overflowY: 'hidden' }}>
         {/* Benchmark */}
         <div
           style={{
@@ -691,29 +694,14 @@ function Screen6() {
               <TrendingUp size={16} color={D.yellow} />
             </div>
             <div>
-              <p
-                style={{
-                  fontSize: 13,
-                  fontWeight: 500,
-                  color: D.textSecondary,
-                  lineHeight: 1.45,
-                  marginBottom: 4,
-                  fontFamily: 'Inter,sans-serif',
-                }}
-              >
+              <p style={{ fontSize: 13, fontWeight: 500, color: D.textSecondary, lineHeight: 1.45, marginBottom: 4, fontFamily: 'Inter,sans-serif' }}>
                 Empresas de{' '}
-                <span style={{ color: D.textPrimary, fontWeight: 700 }}>Moda e Vestuário</span>{' '}
+                <span style={{ color: D.textPrimary, fontWeight: 700 }}>{benchmark.label}</span>{' '}
                 têm em média{' '}
-                <span style={{ color: D.orange, fontWeight: 800 }}>10,66%</span>{' '}
+                <span style={{ color: D.orange, fontWeight: 800 }}>{benchmark.pct}%</span>{' '}
                 do GMV influenciado pelo WhatsApp.
               </p>
-              <p
-                style={{
-                  fontSize: 10,
-                  color: D.textMuted,
-                  fontFamily: 'Inter,sans-serif',
-                }}
-              >
+              <p style={{ fontSize: 10, color: D.textMuted, fontFamily: 'Inter,sans-serif' }}>
                 Fonte: Chat Commerce Report 2025 — OmniChat
               </p>
             </div>
@@ -724,41 +712,17 @@ function Screen6() {
 
         {/* Invite */}
         <div style={{ flex: 1 }}>
-          <h3
-            style={{
-              fontSize: 15,
-              fontWeight: 800,
-              color: D.textPrimary,
-              marginBottom: 4,
-              fontFamily: 'Inter,sans-serif',
-            }}
-          >
+          <h3 style={{ fontSize: 15, fontWeight: 800, color: D.textPrimary, marginBottom: 4, fontFamily: 'Inter,sans-serif' }}>
             Quer evoluir sua operação na prática?
           </h3>
-          <p
-            style={{
-              fontSize: 12,
-              color: D.textSecondary,
-              lineHeight: 1.45,
-              marginBottom: 12,
-              fontFamily: 'Inter,sans-serif',
-            }}
-          >
+          <p style={{ fontSize: 12, color: D.textSecondary, lineHeight: 1.45, marginBottom: 12, fontFamily: 'Inter,sans-serif' }}>
             Nossa equipe no estande da OmniChat no FECBR vai chegar preparada com seu diagnóstico. Escolha um horário.
           </p>
 
-          {/* Time slots */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 7, marginBottom: 14 }}>
             {horarios.map(({ id, label }) => (
               <SelectCard key={id} selected={horario === id} onClick={() => setHorario(id)}>
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 12,
-                    padding: '12px 14px',
-                  }}
-                >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px' }}>
                   <div
                     style={{
                       width: 30,
@@ -785,13 +749,7 @@ function Screen6() {
                   >
                     {label}
                   </span>
-                  {horario === id && (
-                    <CheckCircle2
-                      size={16}
-                      color={D.yellow}
-                      style={{ marginLeft: 'auto' }}
-                    />
-                  )}
+                  {horario === id && <CheckCircle2 size={16} color={D.yellow} style={{ marginLeft: 'auto' }} />}
                 </div>
               </SelectCard>
             ))}
@@ -814,32 +772,17 @@ function Screen6() {
               }}
             >
               <CheckCircle2 size={18} color={D.green} />
-              <span
-                style={{
-                  fontSize: 14,
-                  fontWeight: 800,
-                  color: D.green,
-                  fontFamily: 'Inter,sans-serif',
-                }}
-              >
+              <span style={{ fontSize: 14, fontWeight: 800, color: D.green, fontFamily: 'Inter,sans-serif' }}>
                 Consultoria confirmada!
               </span>
             </div>
           ) : (
-            <PrimaryButton onClick={horario ? () => setConfirmed(true) : undefined} disabled={!horario}>
+            <PrimaryButton onClick={horario ? handleConfirm : undefined} disabled={!horario}>
               Confirmar minha consultoria <ArrowRight size={16} />
             </PrimaryButton>
           )}
 
-          <p
-            style={{
-              textAlign: 'center',
-              fontSize: 11,
-              color: D.textMuted,
-              marginTop: 8,
-              fontFamily: 'Inter,sans-serif',
-            }}
-          >
+          <p style={{ textAlign: 'center', fontSize: 11, color: D.textMuted, marginTop: 8, fontFamily: 'Inter,sans-serif' }}>
             Você receberá a confirmação no e-mail informado.
           </p>
         </div>
@@ -850,9 +793,62 @@ function Screen6() {
 
 // ── App ──────────────────────────────────────────────────────────────────────
 
+const INITIAL_STATE: QuizState = {
+  nome: '',
+  email: '',
+  segmento: '',
+  resposta_p1: -1,
+  resposta_p2: -1,
+  resposta_p3: -1,
+  horario_consultoria: '',
+};
+
 export default function App() {
   const [screen, setScreen] = useState<Screen>(1);
-  const goTo = (s: Screen) => setScreen(s);
+  const [quiz, setQuiz] = useState<QuizState>(INITIAL_STATE);
+
+  function goTo(s: Screen) { setScreen(s); }
+
+  function handleScreen1(nome: string, email: string) {
+    setQuiz(q => ({ ...q, nome, email }));
+    goTo(2);
+  }
+
+  function handleScreen2(segmento: string) {
+    setQuiz(q => ({ ...q, segmento }));
+    goTo(3);
+  }
+
+  function handleScreen3(score: number) {
+    setQuiz(q => ({ ...q, resposta_p1: score }));
+    goTo(4);
+  }
+
+  function handleScreen4(score: number) {
+    setQuiz(q => ({ ...q, resposta_p2: score }));
+    goTo(5);
+  }
+
+  function handleScreen5(score: number) {
+    setQuiz(q => {
+      const updated = { ...q, resposta_p3: score };
+      trackEvent('result_generated', {
+        score_total: updated.resposta_p1 + updated.resposta_p2 + score,
+        segmento: updated.segmento,
+      });
+      return updated;
+    });
+    goTo(6);
+  }
+
+  // Normalise scores for Screen6: treat -1 (unanswered) as 0 for display
+  const displayState: QuizState = {
+    ...quiz,
+    resposta_p1: Math.max(0, quiz.resposta_p1),
+    resposta_p2: Math.max(0, quiz.resposta_p2),
+    resposta_p3: Math.max(0, quiz.resposta_p3),
+    segmento: quiz.segmento || 'vestuario',
+  };
 
   return (
     <div
@@ -866,7 +862,6 @@ export default function App() {
         fontFamily: 'Inter,sans-serif',
       }}
     >
-      {/* Ambient glow behind phone */}
       <div
         style={{
           position: 'fixed',
@@ -909,17 +904,17 @@ export default function App() {
           }}
         />
 
-        {/* Screen content */}
         <div style={{ height: '100%', paddingTop: 36, boxSizing: 'border-box' }}>
-          {screen === 1 && <Screen1 onNext={() => goTo(2)} />}
-          {screen === 2 && <Screen2 onNext={() => goTo(3)} />}
+          {screen === 1 && <Screen1 onNext={handleScreen1} />}
+          {screen === 2 && <Screen2 initialValue={quiz.segmento} onNext={handleScreen2} />}
           {screen === 3 && (
             <QuestionScreen
               step={2}
               tag="WhatsApp Commerce"
               title="Como sua marca usa o WhatsApp hoje?"
               options={q1Options}
-              onNext={() => goTo(4)}
+              initialIndex={quiz.resposta_p1}
+              onNext={handleScreen3}
             />
           )}
           {screen === 4 && (
@@ -928,7 +923,8 @@ export default function App() {
               tag="Atendimento"
               title="Como é o atendimento via chat hoje?"
               options={q2Options}
-              onNext={() => goTo(5)}
+              initialIndex={quiz.resposta_p2}
+              onNext={handleScreen4}
             />
           )}
           {screen === 5 && (
@@ -937,11 +933,12 @@ export default function App() {
               tag="Campanhas Ativas"
               title="Como você usa o WhatsApp para campanhas ativas?"
               options={q3Options}
-              onNext={() => goTo(6)}
+              initialIndex={quiz.resposta_p3}
+              onNext={handleScreen5}
               nextLabel="Ver meu diagnóstico"
             />
           )}
-          {screen === 6 && <Screen6 />}
+          {screen === 6 && <Screen6 state={displayState} />}
         </div>
       </div>
 
