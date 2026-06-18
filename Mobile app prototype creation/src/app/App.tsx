@@ -226,27 +226,43 @@ function Tag({ children }: { children: React.ReactNode }) {
 
 // ── Nav dots (rendered inside frame) ─────────────────────────────────────────
 
-function NavDots({ screen, goTo }: { screen: Screen; goTo: (s: Screen) => void }) {
+function getMaxUnlocked(quiz: QuizState): number {
+  if (!quiz.nome || !quiz.email) return 1;
+  if (!quiz.segmento) return 2;
+  if (quiz.resposta_p1 < 0) return 3;
+  if (quiz.resposta_p2 < 0) return 4;
+  if (quiz.resposta_p3 < 0) return 5;
+  return 6;
+}
+
+function NavDots({ screen, quiz, goTo }: { screen: Screen; quiz: QuizState; goTo: (s: Screen) => void }) {
+  const maxUnlocked = getMaxUnlocked(quiz);
+
   return (
     <div style={{ display: 'flex', justifyContent: 'center', padding: '8px 0 10px', flexShrink: 0 }}>
       <div style={{ display: 'flex', gap: 6, backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', padding: '7px 14px', borderRadius: 999 }}>
-        {([1, 2, 3, 4, 5, 6] as Screen[]).map(s => (
-          <button
-            key={s}
-            onClick={() => goTo(s)}
-            title={`Tela ${s}`}
-            style={{
-              width: screen === s ? 18 : 6,
-              height: 6,
-              borderRadius: 999,
-              border: 'none',
-              backgroundColor: screen === s ? D.yellow : 'rgba(255,255,255,0.2)',
-              cursor: 'pointer',
-              transition: 'all 0.25s ease',
-              padding: 0,
-            }}
-          />
-        ))}
+        {([1, 2, 3, 4, 5, 6] as Screen[]).map(s => {
+          const unlocked = s <= maxUnlocked;
+          const active = screen === s;
+          return (
+            <button
+              key={s}
+              onClick={unlocked ? () => goTo(s) : undefined}
+              title={unlocked ? `Tela ${s}` : 'Complete a etapa atual para avançar'}
+              style={{
+                width: active ? 18 : 6,
+                height: 6,
+                borderRadius: 999,
+                border: 'none',
+                backgroundColor: active ? D.yellow : unlocked ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.1)',
+                cursor: unlocked ? 'pointer' : 'not-allowed',
+                transition: 'all 0.25s ease',
+                padding: 0,
+                opacity: unlocked ? 1 : 0.4,
+              }}
+            />
+          );
+        })}
       </div>
     </div>
   );
@@ -605,7 +621,7 @@ export default function App() {
         </div>
 
         {/* Nav dots — always inside frame */}
-        <NavDots screen={screen} goTo={goTo} />
+        <NavDots screen={screen} quiz={quiz} goTo={goTo} />
       </div>
     </div>
   );
