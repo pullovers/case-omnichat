@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Shirt, Sparkles, Hammer, Armchair, ShoppingBag, Dumbbell,
   GraduationCap, PawPrint, Gem, ShoppingCart,
@@ -8,14 +8,7 @@ import {
 function OmniChatLogo({ height = 28, style }: { height?: number; style?: React.CSSProperties }) {
   const scale = height / 35;
   return (
-    <svg
-      width={135 * scale}
-      height={height}
-      viewBox="0 0 135 35"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      style={style}
-    >
+    <svg width={135 * scale} height={height} viewBox="0 0 135 35" fill="none" xmlns="http://www.w3.org/2000/svg" style={style}>
       <path d="M1.41553 34.3704C1.03069 34.3704 0.616252 34.2519 0.320223 33.8963C0.142606 33.6889 -0.212628 33.1259 0.17221 32.2667C0.438636 31.6444 1.82997 29.1259 2.45163 27.9407C1.56355 26.3407 1.1491 24.4741 1.1491 22.4V11.3778C1.1491 5.12593 6.2408 0 12.5166 0H23.5289C29.7751 0 34.8964 5.0963 34.8964 11.3778V22.4C34.8964 28.6518 29.8047 33.7778 23.5289 33.7778H12.5166C10.1188 33.7778 8.313 33.2444 6.53683 32L6.32961 32.0889L2.0964 34.2519C2.0964 34.2519 1.94838 34.3111 1.85957 34.3407C1.74116 34.3704 1.59315 34.4 1.41553 34.4M6.68484 29.5111C6.95127 29.5111 7.18809 29.6 7.39531 29.7481C8.93466 30.963 10.3852 31.437 12.487 31.437H23.4993C28.4726 31.437 32.5282 27.3778 32.5282 22.4V11.3778C32.5282 6.4 28.4726 2.34074 23.4993 2.34074H12.487C7.51373 2.34074 3.45813 6.4 3.45813 11.3778V22.4C3.45813 24.2963 3.90217 25.9259 4.76066 27.2889C4.99748 27.6444 4.99748 28.0889 4.79026 28.4741C4.49423 29.0074 3.96138 29.9852 3.48773 30.9037L5.29351 29.9852C5.29351 29.9852 5.35271 29.9852 5.38232 29.9556L6.2408 29.6C6.2408 29.6 6.53683 29.5111 6.68484 29.5111Z" fill="#FFBC00"/>
       <path d="M25.2756 12.3259C25.0684 12.0296 24.7132 11.8222 24.3283 11.8222H13.0496L12.4872 10.3111C12.3096 9.86661 11.8951 9.57031 11.3919 9.57031H9.37888C8.72761 9.57031 8.22437 10.1036 8.22437 10.7259C8.22437 11.3481 8.75722 11.8814 9.37888 11.8814H10.5926L11.1551 13.3629L13.2273 19.9407C13.3753 20.4148 13.8193 20.7407 14.3226 20.7407H22.0193C22.5226 20.7407 22.937 20.4148 23.1146 19.9703L25.4236 13.3629C25.5421 13.0074 25.4828 12.6222 25.2756 12.2962M21.1904 18.4296H15.181L13.8489 14.1629H22.7298L21.22 18.4296H21.1904Z" fill="#FFBC00"/>
       <path d="M15.4178 22.8448C15.4178 23.7633 14.6777 24.5041 13.7601 24.5041C12.8424 24.5041 12.1023 23.7633 12.1023 22.8448C12.1023 21.9263 12.8424 21.1855 13.7601 21.1855C14.6777 21.1855 15.4178 21.9263 15.4178 22.8448Z" fill="#FFBC00"/>
@@ -44,9 +37,7 @@ const D = {
   textMuted: '#5C5650',
   yellow: '#FFD23F',
   yellowBg: '#1D1A07',
-  yellowText: '#FFD23F',
   orange: '#FF8A3D',
-  purple: '#250616',
   ink: '#080604',
   green: '#25D366',
   inputBg: '#141312',
@@ -67,6 +58,22 @@ interface QuizState {
   horario_consultoria: string;
 }
 
+// ── Viewport hook ─────────────────────────────────────────────────────────────
+
+function useViewport() {
+  const getVals = () => ({
+    w: typeof window !== 'undefined' ? window.innerWidth : 1024,
+    h: typeof window !== 'undefined' ? window.innerHeight : 844,
+  });
+  const [vp, setVp] = useState(getVals);
+  useEffect(() => {
+    const handler = () => setVp(getVals());
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, []);
+  return vp;
+}
+
 // ── Data ─────────────────────────────────────────────────────────────────────
 
 const segments = [
@@ -83,16 +90,16 @@ const segments = [
 ];
 
 const benchmarks: Record<string, { label: string; pct: string }> = {
-  joias_acessorios:    { label: 'Joias e acessórios',      pct: '28,52' },
-  bens_consumo:        { label: 'Bens de consumo',         pct: '17,96' },
-  materiais_construcao:{ label: 'Materiais de construção', pct: '15,32' },
-  moveis_decoracao:    { label: 'Móveis e decoração',      pct: '14,53' },
-  calcados:            { label: 'Calçados',                pct: '12,7'  },
-  artigos_esportivos:  { label: 'Artigos esportivos',      pct: '12,35' },
-  educacao:            { label: 'Educação',                pct: '11,81' },
-  pet_shop:            { label: 'Pet shop',                pct: '11,58' },
-  vestuario:           { label: 'Vestuário',               pct: '10,66' },
-  beleza_perfumaria:   { label: 'Beleza e perfumaria',     pct: '7,19'  },
+  joias_acessorios:     { label: 'Joias e acessórios',      pct: '28,52' },
+  bens_consumo:         { label: 'Bens de consumo',         pct: '17,96' },
+  materiais_construcao: { label: 'Materiais de construção', pct: '15,32' },
+  moveis_decoracao:     { label: 'Móveis e decoração',      pct: '14,53' },
+  calcados:             { label: 'Calçados',                pct: '12,7'  },
+  artigos_esportivos:   { label: 'Artigos esportivos',      pct: '12,35' },
+  educacao:             { label: 'Educação',                pct: '11,81' },
+  pet_shop:             { label: 'Pet shop',                pct: '11,58' },
+  vestuario:            { label: 'Vestuário',               pct: '10,66' },
+  beleza_perfumaria:    { label: 'Beleza e perfumaria',     pct: '7,19'  },
 };
 
 const q1Options = [
@@ -142,8 +149,8 @@ function trackEvent(name: string, params?: Record<string, unknown>) {
 
 function ProgressBar({ step, total }: { step: number; total: number }) {
   return (
-    <div style={{ marginBottom: 20 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+    <div style={{ marginBottom: 14 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
         <span style={{ fontSize: 11, color: D.textMuted, fontWeight: 500, fontFamily: 'Inter,sans-serif' }}>
           Etapa {step} de {total}
         </span>
@@ -152,50 +159,34 @@ function ProgressBar({ step, total }: { step: number; total: number }) {
         </span>
       </div>
       <div style={{ height: 3, backgroundColor: D.progressTrack, borderRadius: 999, overflow: 'hidden' }}>
-        <div
-          style={{
-            height: '100%',
-            width: `${(step / total) * 100}%`,
-            background: `linear-gradient(90deg, ${D.yellow} 0%, ${D.orange} 100%)`,
-            borderRadius: 999,
-            transition: 'width 0.4s ease',
-          }}
-        />
+        <div style={{ height: '100%', width: `${(step / total) * 100}%`, background: `linear-gradient(90deg, ${D.yellow} 0%, ${D.orange} 100%)`, borderRadius: 999, transition: 'width 0.4s ease' }} />
       </div>
     </div>
   );
 }
 
-function PrimaryButton({
-  onClick,
-  disabled = false,
-  children,
-}: {
-  onClick?: () => void;
-  disabled?: boolean;
-  children: React.ReactNode;
-}) {
+function PrimaryButton({ onClick, disabled = false, children }: { onClick?: () => void; disabled?: boolean; children: React.ReactNode }) {
   return (
     <button
       onClick={disabled ? undefined : onClick}
       disabled={disabled}
       style={{
         width: '100%',
-        padding: '15px 24px',
+        padding: '13px 24px',
         borderRadius: 999,
         border: 'none',
         backgroundColor: disabled ? D.surface : D.yellow,
         color: disabled ? D.textMuted : D.ink,
-        fontSize: 15,
+        fontSize: 14,
         fontWeight: 800,
         cursor: disabled ? 'not-allowed' : 'pointer',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         gap: 6,
-        transition: 'opacity 0.15s, transform 0.1s',
         fontFamily: 'Inter,sans-serif',
         letterSpacing: 0.1,
+        flexShrink: 0,
       }}
     >
       {children}
@@ -203,23 +194,13 @@ function PrimaryButton({
   );
 }
 
-function SelectCard({
-  selected,
-  onClick,
-  children,
-  style,
-}: {
-  selected: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-  style?: React.CSSProperties;
-}) {
+function SelectCard({ selected, onClick, children, style }: { selected: boolean; onClick: () => void; children: React.ReactNode; style?: React.CSSProperties }) {
   return (
     <div
       onClick={onClick}
       style={{
         cursor: 'pointer',
-        borderRadius: 14,
+        borderRadius: 12,
         border: selected ? `1.5px solid ${D.yellow}` : `1.5px solid ${D.border}`,
         backgroundColor: selected ? D.yellowBg : D.surface,
         transition: 'all 0.15s ease',
@@ -232,25 +213,41 @@ function SelectCard({
 }
 
 function Divider() {
-  return <div style={{ height: 1, backgroundColor: D.borderSubtle, margin: '14px 0' }} />;
+  return <div style={{ height: 1, backgroundColor: D.borderSubtle, margin: '10px 0' }} />;
 }
 
 function Tag({ children }: { children: React.ReactNode }) {
   return (
-    <div
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        backgroundColor: D.yellowBg,
-        border: `1px solid rgba(255,210,63,0.25)`,
-        borderRadius: 999,
-        padding: '4px 12px',
-        marginBottom: 10,
-      }}
-    >
-      <span style={{ fontSize: 11, fontWeight: 700, color: D.yellow, fontFamily: 'Inter,sans-serif', letterSpacing: 0.3 }}>
-        {children}
-      </span>
+    <div style={{ display: 'inline-flex', alignItems: 'center', backgroundColor: D.yellowBg, border: `1px solid rgba(255,210,63,0.25)`, borderRadius: 999, padding: '3px 10px', marginBottom: 6 }}>
+      <span style={{ fontSize: 10, fontWeight: 700, color: D.yellow, fontFamily: 'Inter,sans-serif', letterSpacing: 0.3 }}>{children}</span>
+    </div>
+  );
+}
+
+// ── Nav dots (rendered inside frame) ─────────────────────────────────────────
+
+function NavDots({ screen, goTo }: { screen: Screen; goTo: (s: Screen) => void }) {
+  return (
+    <div style={{ display: 'flex', justifyContent: 'center', padding: '8px 0 10px', flexShrink: 0 }}>
+      <div style={{ display: 'flex', gap: 6, backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', padding: '7px 14px', borderRadius: 999 }}>
+        {([1, 2, 3, 4, 5, 6] as Screen[]).map(s => (
+          <button
+            key={s}
+            onClick={() => goTo(s)}
+            title={`Tela ${s}`}
+            style={{
+              width: screen === s ? 18 : 6,
+              height: 6,
+              borderRadius: 999,
+              border: 'none',
+              backgroundColor: screen === s ? D.yellow : 'rgba(255,255,255,0.2)',
+              cursor: 'pointer',
+              transition: 'all 0.25s ease',
+              padding: 0,
+            }}
+          />
+        ))}
+      </div>
     </div>
   );
 }
@@ -264,8 +261,8 @@ function Screen1({ onNext }: { onNext: (nome: string, email: string) => void }) 
 
   const inputStyle: React.CSSProperties = {
     width: '100%',
-    padding: '14px 16px',
-    borderRadius: 14,
+    padding: '12px 14px',
+    borderRadius: 12,
     border: `1.5px solid ${D.border}`,
     backgroundColor: D.inputBg,
     fontSize: 14,
@@ -284,114 +281,50 @@ function Screen1({ onNext }: { onNext: (nome: string, email: string) => void }) 
   }
 
   return (
-    <div
-      style={{
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        padding: '28px 22px 24px',
-        backgroundColor: D.bg,
-      }}
-    >
-      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 28 }}>
-        <OmniChatLogo height={30} />
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '20px 20px 16px', overflow: 'hidden' }}>
+      {/* Logo */}
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16, flexShrink: 0 }}>
+        <OmniChatLogo height={26} />
       </div>
 
+      {/* Hero card */}
       <div
         style={{
           background: `linear-gradient(145deg, #1A0D22 0%, #0F0810 100%)`,
-          borderRadius: 22,
-          padding: '24px 22px',
-          marginBottom: 22,
+          borderRadius: 18,
+          padding: '16px 18px',
+          marginBottom: 14,
           border: `1px solid rgba(255,210,63,0.12)`,
           position: 'relative',
           overflow: 'hidden',
+          flexShrink: 0,
         }}
       >
-        <div
-          style={{
-            position: 'absolute',
-            top: -30,
-            right: -30,
-            width: 120,
-            height: 120,
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(255,210,63,0.18) 0%, transparent 70%)',
-            pointerEvents: 'none',
-          }}
-        />
-        <div
-          style={{
-            display: 'inline-block',
-            backgroundColor: D.yellow,
-            color: D.ink,
-            fontSize: 10,
-            fontWeight: 800,
-            letterSpacing: 1.4,
-            textTransform: 'uppercase',
-            padding: '4px 12px',
-            borderRadius: 999,
-            marginBottom: 14,
-            fontFamily: 'Inter,sans-serif',
-          }}
-        >
+        <div style={{ position: 'absolute', top: -20, right: -20, width: 100, height: 100, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,210,63,0.18) 0%, transparent 70%)', pointerEvents: 'none' }} />
+        <div style={{ display: 'inline-block', backgroundColor: D.yellow, color: D.ink, fontSize: 9, fontWeight: 800, letterSpacing: 1.2, textTransform: 'uppercase', padding: '3px 10px', borderRadius: 999, marginBottom: 10, fontFamily: 'Inter,sans-serif' }}>
           Chat Commerce Report 2025
         </div>
-        <h1
-          style={{
-            color: D.textPrimary,
-            fontSize: 20,
-            fontWeight: 800,
-            lineHeight: 1.25,
-            marginBottom: 10,
-            fontFamily: 'Inter,sans-serif',
-          }}
-        >
+        <h1 style={{ color: D.textPrimary, fontSize: 17, fontWeight: 800, lineHeight: 1.25, marginBottom: 8, fontFamily: 'Inter,sans-serif' }}>
           Qual é o nível de maturidade do seu chat commerce?
         </h1>
-        <p
-          style={{
-            color: D.textSecondary,
-            fontSize: 13,
-            lineHeight: 1.5,
-            fontFamily: 'Inter,sans-serif',
-          }}
-        >
+        <p style={{ color: D.textSecondary, fontSize: 12, lineHeight: 1.45, fontFamily: 'Inter,sans-serif', margin: 0 }}>
           Responda 3 perguntas rápidas e veja como sua operação se compara com o mercado do seu segmento.
         </p>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 14, flex: 1 }}>
-        <input
-          type="text"
-          placeholder="Nome"
-          value={nome}
-          onChange={e => setNome(e.target.value)}
-          style={inputStyle}
-        />
-        <input
-          type="email"
-          placeholder="E-mail corporativo"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          style={inputStyle}
-        />
+      {/* Form */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12, flexShrink: 0 }}>
+        <input type="text" placeholder="Nome" value={nome} onChange={e => setNome(e.target.value)} style={inputStyle} />
+        <input type="email" placeholder="E-mail corporativo" value={email} onChange={e => setEmail(e.target.value)} style={inputStyle} />
       </div>
 
-      <PrimaryButton onClick={handleNext} disabled={!valid}>
-        Quero ver meu diagnóstico <ArrowRight size={16} />
-      </PrimaryButton>
+      <div style={{ flexShrink: 0 }}>
+        <PrimaryButton onClick={handleNext} disabled={!valid}>
+          Quero ver meu diagnóstico <ArrowRight size={15} />
+        </PrimaryButton>
+      </div>
 
-      <p
-        style={{
-          textAlign: 'center',
-          fontSize: 11,
-          color: D.textMuted,
-          lineHeight: 1.4,
-          marginTop: 16,
-          fontFamily: 'Inter,sans-serif',
-        }}
-      >
+      <p style={{ textAlign: 'center', fontSize: 10, color: D.textMuted, lineHeight: 1.4, marginTop: 10, fontFamily: 'Inter,sans-serif', flexShrink: 0 }}>
         Leva menos de 2 minutos. Dados usados apenas para envio do resultado.
       </p>
     </div>
@@ -404,59 +337,22 @@ function Screen2({ initialValue, onNext }: { initialValue: string; onNext: (segm
   const [selected, setSelected] = useState(initialValue);
 
   return (
-    <div
-      style={{
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        padding: '20px 20px 22px',
-        backgroundColor: D.bg,
-      }}
-    >
-      <ProgressBar step={1} total={4} />
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '16px 18px 14px', overflow: 'hidden' }}>
+      <div style={{ flexShrink: 0 }}>
+        <ProgressBar step={1} total={4} />
+        <h2 style={{ fontSize: 15, fontWeight: 800, color: D.textPrimary, marginBottom: 12, lineHeight: 1.3, fontFamily: 'Inter,sans-serif' }}>
+          Qual é o segmento do seu negócio?
+        </h2>
+      </div>
 
-      <h2
-        style={{
-          fontSize: 17,
-          fontWeight: 800,
-          color: D.textPrimary,
-          marginBottom: 14,
-          lineHeight: 1.3,
-          fontFamily: 'Inter,sans-serif',
-        }}
-      >
-        Qual é o segmento do seu negócio?
-      </h2>
-
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, flex: 1 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 7, flex: 1, minHeight: 0 }}>
         {segments.map(({ id, label, Icon }) => (
           <SelectCard key={id} selected={selected === id} onClick={() => setSelected(id)}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 7, padding: '11px 11px' }}>
-              <div
-                style={{
-                  width: 30,
-                  height: 30,
-                  borderRadius: 8,
-                  backgroundColor: selected === id ? D.yellow : D.surfaceHover,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0,
-                  transition: 'background-color 0.15s',
-                }}
-              >
-                <Icon size={15} color={selected === id ? D.ink : D.textSecondary} />
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 5, padding: '9px 10px' }}>
+              <div style={{ width: 26, height: 26, borderRadius: 7, backgroundColor: selected === id ? D.yellow : D.surfaceHover, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'background-color 0.15s' }}>
+                <Icon size={13} color={selected === id ? D.ink : D.textSecondary} />
               </div>
-              <span
-                style={{
-                  fontSize: 11,
-                  fontWeight: 600,
-                  color: selected === id ? D.textPrimary : D.textSecondary,
-                  lineHeight: 1.3,
-                  fontFamily: 'Inter,sans-serif',
-                  transition: 'color 0.15s',
-                }}
-              >
+              <span style={{ fontSize: 10, fontWeight: 600, color: selected === id ? D.textPrimary : D.textSecondary, lineHeight: 1.3, fontFamily: 'Inter,sans-serif', transition: 'color 0.15s' }}>
                 {label}
               </span>
             </div>
@@ -464,9 +360,9 @@ function Screen2({ initialValue, onNext }: { initialValue: string; onNext: (segm
         ))}
       </div>
 
-      <div style={{ marginTop: 14 }}>
+      <div style={{ marginTop: 12, flexShrink: 0 }}>
         <PrimaryButton onClick={selected ? () => onNext(selected) : undefined} disabled={!selected}>
-          Continuar <ArrowRight size={16} />
+          Continuar <ArrowRight size={15} />
         </PrimaryButton>
       </div>
     </div>
@@ -475,18 +371,8 @@ function Screen2({ initialValue, onNext }: { initialValue: string; onNext: (segm
 
 // ── Shared question screen (Telas 3, 4, 5) ───────────────────────────────────
 
-function QuestionScreen({
-  step,
-  tag,
-  title,
-  options,
-  initialIndex,
-  onNext,
-  nextLabel = 'Continuar',
-}: {
-  step: number;
-  tag: string;
-  title: string;
+function QuestionScreen({ step, tag, title, options, initialIndex, onNext, nextLabel = 'Continuar' }: {
+  step: number; tag: string; title: string;
   options: { id: string; label: string }[];
   initialIndex: number;
   onNext: (score: number) => void;
@@ -495,58 +381,21 @@ function QuestionScreen({
   const [selectedIndex, setSelectedIndex] = useState<number>(initialIndex);
 
   return (
-    <div
-      style={{
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        padding: '20px 20px 22px',
-        backgroundColor: D.bg,
-      }}
-    >
-      <ProgressBar step={step} total={4} />
-
-      <div style={{ marginBottom: 18 }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '16px 18px 14px', overflow: 'hidden' }}>
+      <div style={{ flexShrink: 0 }}>
+        <ProgressBar step={step} total={4} />
         <Tag>{tag}</Tag>
-        <h2
-          style={{
-            fontSize: 17,
-            fontWeight: 800,
-            color: D.textPrimary,
-            lineHeight: 1.3,
-            fontFamily: 'Inter,sans-serif',
-          }}
-        >
+        <h2 style={{ fontSize: 15, fontWeight: 800, color: D.textPrimary, lineHeight: 1.3, marginBottom: 12, fontFamily: 'Inter,sans-serif' }}>
           {title}
         </h2>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 9, flex: 1 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 7, flex: 1, minHeight: 0 }}>
         {options.map(({ id, label }, index) => (
           <SelectCard key={id} selected={selectedIndex === index} onClick={() => setSelectedIndex(index)}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '15px 16px' }}>
-              <div
-                style={{
-                  width: 18,
-                  height: 18,
-                  borderRadius: '50%',
-                  border: selectedIndex === index ? `5px solid ${D.yellow}` : `1.5px solid ${D.border}`,
-                  flexShrink: 0,
-                  backgroundColor: 'transparent',
-                  transition: 'all 0.15s',
-                  boxSizing: 'border-box',
-                }}
-              />
-              <span
-                style={{
-                  fontSize: 13,
-                  fontWeight: selectedIndex === index ? 600 : 400,
-                  color: selectedIndex === index ? D.textPrimary : D.textSecondary,
-                  lineHeight: 1.45,
-                  fontFamily: 'Inter,sans-serif',
-                  transition: 'color 0.15s, font-weight 0.15s',
-                }}
-              >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px' }}>
+              <div style={{ width: 16, height: 16, borderRadius: '50%', border: selectedIndex === index ? `5px solid ${D.yellow}` : `1.5px solid ${D.border}`, flexShrink: 0, backgroundColor: 'transparent', transition: 'all 0.15s', boxSizing: 'border-box' }} />
+              <span style={{ fontSize: 12, fontWeight: selectedIndex === index ? 600 : 400, color: selectedIndex === index ? D.textPrimary : D.textSecondary, lineHeight: 1.4, fontFamily: 'Inter,sans-serif', transition: 'color 0.15s' }}>
                 {label}
               </span>
             </div>
@@ -554,12 +403,9 @@ function QuestionScreen({
         ))}
       </div>
 
-      <div style={{ marginTop: 16 }}>
-        <PrimaryButton
-          onClick={selectedIndex >= 0 ? () => onNext(selectedIndex) : undefined}
-          disabled={selectedIndex < 0}
-        >
-          {nextLabel} <ArrowRight size={16} />
+      <div style={{ marginTop: 12, flexShrink: 0 }}>
+        <PrimaryButton onClick={selectedIndex >= 0 ? () => onNext(selectedIndex) : undefined} disabled={selectedIndex < 0}>
+          {nextLabel} <ArrowRight size={15} />
         </PrimaryButton>
       </div>
     </div>
@@ -582,128 +428,44 @@ function Screen6({ state }: { state: QuizState }) {
   }
 
   return (
-    <div
-      style={{
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        backgroundColor: D.bg,
-        overflow: 'hidden',
-      }}
-    >
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       {/* Score hero */}
-      <div
-        style={{
-          background: 'linear-gradient(150deg, #1A0D22 0%, #0F0810 60%, #0D0C0B 100%)',
-          padding: '22px 22px 20px',
-          position: 'relative',
-          overflow: 'hidden',
-          borderBottom: `1px solid ${D.borderSubtle}`,
-        }}
-      >
-        <div
-          style={{
-            position: 'absolute',
-            right: -20,
-            top: -20,
-            width: 180,
-            height: 180,
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(255,90,140,0.15) 0%, transparent 70%)',
-            pointerEvents: 'none',
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            left: -40,
-            bottom: -20,
-            width: 140,
-            height: 140,
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(255,210,63,0.10) 0%, transparent 70%)',
-            pointerEvents: 'none',
-          }}
-        />
+      <div style={{ background: 'linear-gradient(150deg, #1A0D22 0%, #0F0810 60%, #0D0C0B 100%)', padding: '16px 20px 14px', position: 'relative', overflow: 'hidden', borderBottom: `1px solid ${D.borderSubtle}`, flexShrink: 0 }}>
+        <div style={{ position: 'absolute', right: -20, top: -20, width: 150, height: 150, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,90,140,0.15) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-          <div
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              backgroundColor: D.yellow,
-              color: D.ink,
-              fontSize: 10,
-              fontWeight: 800,
-              letterSpacing: 0.8,
-              textTransform: 'uppercase',
-              padding: '5px 14px',
-              borderRadius: 999,
-              fontFamily: 'Inter,sans-serif',
-            }}
-          >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', backgroundColor: D.yellow, color: D.ink, fontSize: 9, fontWeight: 800, letterSpacing: 0.8, textTransform: 'uppercase', padding: '4px 12px', borderRadius: 999, fontFamily: 'Inter,sans-serif' }}>
             {classificacao}
           </div>
-          <OmniChatLogo height={22} style={{ opacity: 0.6 }} />
+          <OmniChatLogo height={20} style={{ opacity: 0.6 }} />
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, marginBottom: 6 }}>
-          <span style={{ fontSize: 52, fontWeight: 800, color: '#FFFFFF', lineHeight: 1, fontFamily: 'Inter,sans-serif' }}>
-            {score}
-          </span>
-          <span style={{ fontSize: 26, fontWeight: 500, color: D.textMuted, lineHeight: 1, paddingBottom: 7, fontFamily: 'Inter,sans-serif' }}>
-            /9
-          </span>
-          <span style={{ fontSize: 13, fontWeight: 700, color: D.yellow, paddingBottom: 10, marginLeft: 10, fontFamily: 'Inter,sans-serif' }}>
-            Seu score
-          </span>
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, marginBottom: 4 }}>
+          <span style={{ fontSize: 42, fontWeight: 800, color: '#FFFFFF', lineHeight: 1, fontFamily: 'Inter,sans-serif' }}>{score}</span>
+          <span style={{ fontSize: 22, fontWeight: 500, color: D.textMuted, lineHeight: 1, paddingBottom: 6, fontFamily: 'Inter,sans-serif' }}>/9</span>
+          <span style={{ fontSize: 12, fontWeight: 700, color: D.yellow, paddingBottom: 8, marginLeft: 8, fontFamily: 'Inter,sans-serif' }}>Seu score</span>
         </div>
 
-        <p style={{ fontSize: 13, color: D.textSecondary, lineHeight: 1.45, fontFamily: 'Inter,sans-serif' }}>
-          {mensagem}
-        </p>
+        <p style={{ fontSize: 12, color: D.textSecondary, lineHeight: 1.4, fontFamily: 'Inter,sans-serif', margin: 0 }}>{mensagem}</p>
       </div>
 
-      {/* Content */}
-      <div style={{ flex: 1, padding: '18px 20px 20px', display: 'flex', flexDirection: 'column', overflowY: 'hidden' }}>
+      {/* Scrollable content */}
+      <div style={{ flex: 1, padding: '12px 18px 14px', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
         {/* Benchmark */}
-        <div
-          style={{
-            backgroundColor: D.surface,
-            border: `1.5px solid ${D.border}`,
-            borderRadius: 16,
-            padding: '14px 16px',
-            marginBottom: 14,
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-            <div
-              style={{
-                width: 34,
-                height: 34,
-                borderRadius: 10,
-                backgroundColor: D.yellowBg,
-                border: `1px solid rgba(255,210,63,0.2)`,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-              }}
-            >
-              <TrendingUp size={16} color={D.yellow} />
+        <div style={{ backgroundColor: D.surface, border: `1.5px solid ${D.border}`, borderRadius: 14, padding: '12px 14px', marginBottom: 10, flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+            <div style={{ width: 30, height: 30, borderRadius: 9, backgroundColor: D.yellowBg, border: `1px solid rgba(255,210,63,0.2)`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <TrendingUp size={14} color={D.yellow} />
             </div>
             <div>
-              <p style={{ fontSize: 13, fontWeight: 500, color: D.textSecondary, lineHeight: 1.45, marginBottom: 4, fontFamily: 'Inter,sans-serif' }}>
+              <p style={{ fontSize: 12, fontWeight: 500, color: D.textSecondary, lineHeight: 1.45, marginBottom: 3, fontFamily: 'Inter,sans-serif' }}>
                 Empresas de{' '}
                 <span style={{ color: D.textPrimary, fontWeight: 700 }}>{benchmark.label}</span>{' '}
                 têm em média{' '}
                 <span style={{ color: D.orange, fontWeight: 800 }}>{benchmark.pct}%</span>{' '}
                 do GMV influenciado pelo WhatsApp.
               </p>
-              <p style={{ fontSize: 10, color: D.textMuted, fontFamily: 'Inter,sans-serif' }}>
-                Fonte: Chat Commerce Report 2025 — OmniChat
-              </p>
+              <p style={{ fontSize: 10, color: D.textMuted, fontFamily: 'Inter,sans-serif', margin: 0 }}>Fonte: Chat Commerce Report 2025 — OmniChat</p>
             </div>
           </div>
         </div>
@@ -711,81 +473,43 @@ function Screen6({ state }: { state: QuizState }) {
         <Divider />
 
         {/* Invite */}
-        <div style={{ flex: 1 }}>
-          <h3 style={{ fontSize: 15, fontWeight: 800, color: D.textPrimary, marginBottom: 4, fontFamily: 'Inter,sans-serif' }}>
-            Quer evoluir sua operação na prática?
-          </h3>
-          <p style={{ fontSize: 12, color: D.textSecondary, lineHeight: 1.45, marginBottom: 12, fontFamily: 'Inter,sans-serif' }}>
-            Nossa equipe no estande da OmniChat no FECBR vai chegar preparada com seu diagnóstico. Escolha um horário.
-          </p>
+        <h3 style={{ fontSize: 14, fontWeight: 800, color: D.textPrimary, marginBottom: 3, fontFamily: 'Inter,sans-serif' }}>
+          Quer evoluir sua operação na prática?
+        </h3>
+        <p style={{ fontSize: 11, color: D.textSecondary, lineHeight: 1.45, marginBottom: 10, fontFamily: 'Inter,sans-serif' }}>
+          Nossa equipe no estande da OmniChat no FECBR vai chegar preparada com seu diagnóstico. Escolha um horário.
+        </p>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 7, marginBottom: 14 }}>
-            {horarios.map(({ id, label }) => (
-              <SelectCard key={id} selected={horario === id} onClick={() => setHorario(id)}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px' }}>
-                  <div
-                    style={{
-                      width: 30,
-                      height: 30,
-                      borderRadius: 8,
-                      backgroundColor: horario === id ? D.yellow : D.surfaceHover,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0,
-                      transition: 'background-color 0.15s',
-                    }}
-                  >
-                    <Clock size={14} color={horario === id ? D.ink : D.textSecondary} />
-                  </div>
-                  <span
-                    style={{
-                      fontSize: 14,
-                      fontWeight: 700,
-                      color: horario === id ? D.textPrimary : D.textSecondary,
-                      fontFamily: 'Inter,sans-serif',
-                      transition: 'color 0.15s',
-                    }}
-                  >
-                    {label}
-                  </span>
-                  {horario === id && <CheckCircle2 size={16} color={D.yellow} style={{ marginLeft: 'auto' }} />}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 10, flexShrink: 0 }}>
+          {horarios.map(({ id, label }) => (
+            <SelectCard key={id} selected={horario === id} onClick={() => setHorario(id)}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px' }}>
+                <div style={{ width: 28, height: 28, borderRadius: 7, backgroundColor: horario === id ? D.yellow : D.surfaceHover, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'background-color 0.15s' }}>
+                  <Clock size={13} color={horario === id ? D.ink : D.textSecondary} />
                 </div>
-              </SelectCard>
-            ))}
-          </div>
-
-          {confirmed ? (
-            <div
-              style={{
-                width: '100%',
-                padding: '15px 24px',
-                borderRadius: 999,
-                backgroundColor: 'rgba(37,211,102,0.15)',
-                border: `1.5px solid rgba(37,211,102,0.35)`,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 8,
-                marginBottom: 8,
-                boxSizing: 'border-box',
-              }}
-            >
-              <CheckCircle2 size={18} color={D.green} />
-              <span style={{ fontSize: 14, fontWeight: 800, color: D.green, fontFamily: 'Inter,sans-serif' }}>
-                Consultoria confirmada!
-              </span>
-            </div>
-          ) : (
-            <PrimaryButton onClick={horario ? handleConfirm : undefined} disabled={!horario}>
-              Confirmar minha consultoria <ArrowRight size={16} />
-            </PrimaryButton>
-          )}
-
-          <p style={{ textAlign: 'center', fontSize: 11, color: D.textMuted, marginTop: 8, fontFamily: 'Inter,sans-serif' }}>
-            Você receberá a confirmação no e-mail informado.
-          </p>
+                <span style={{ fontSize: 13, fontWeight: 700, color: horario === id ? D.textPrimary : D.textSecondary, fontFamily: 'Inter,sans-serif', transition: 'color 0.15s' }}>
+                  {label}
+                </span>
+                {horario === id && <CheckCircle2 size={14} color={D.yellow} style={{ marginLeft: 'auto' }} />}
+              </div>
+            </SelectCard>
+          ))}
         </div>
+
+        {confirmed ? (
+          <div style={{ width: '100%', padding: '13px 24px', borderRadius: 999, backgroundColor: 'rgba(37,211,102,0.15)', border: `1.5px solid rgba(37,211,102,0.35)`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, boxSizing: 'border-box', flexShrink: 0 }}>
+            <CheckCircle2 size={16} color={D.green} />
+            <span style={{ fontSize: 13, fontWeight: 800, color: D.green, fontFamily: 'Inter,sans-serif' }}>Consultoria confirmada!</span>
+          </div>
+        ) : (
+          <PrimaryButton onClick={horario ? handleConfirm : undefined} disabled={!horario}>
+            Confirmar minha consultoria <ArrowRight size={15} />
+          </PrimaryButton>
+        )}
+
+        <p style={{ textAlign: 'center', fontSize: 10, color: D.textMuted, marginTop: 8, fontFamily: 'Inter,sans-serif' }}>
+          Você receberá a confirmação no e-mail informado.
+        </p>
       </div>
     </div>
   );
@@ -806,42 +530,30 @@ const INITIAL_STATE: QuizState = {
 export default function App() {
   const [screen, setScreen] = useState<Screen>(1);
   const [quiz, setQuiz] = useState<QuizState>(INITIAL_STATE);
+  const { w: vpW, h: vpH } = useViewport();
+
+  // On a real mobile device (narrow viewport), fill the screen.
+  // On desktop, show the phone frame mockup.
+  const isMobile = vpW <= 500;
+  const frameW = isMobile ? vpW : 390;
+  const frameH = isMobile ? vpH : Math.min(844, vpH - 40);
+  const showFrame = !isMobile;
 
   function goTo(s: Screen) { setScreen(s); }
 
-  function handleScreen1(nome: string, email: string) {
-    setQuiz(q => ({ ...q, nome, email }));
-    goTo(2);
-  }
-
-  function handleScreen2(segmento: string) {
-    setQuiz(q => ({ ...q, segmento }));
-    goTo(3);
-  }
-
-  function handleScreen3(score: number) {
-    setQuiz(q => ({ ...q, resposta_p1: score }));
-    goTo(4);
-  }
-
-  function handleScreen4(score: number) {
-    setQuiz(q => ({ ...q, resposta_p2: score }));
-    goTo(5);
-  }
-
+  function handleScreen1(nome: string, email: string) { setQuiz(q => ({ ...q, nome, email })); goTo(2); }
+  function handleScreen2(segmento: string) { setQuiz(q => ({ ...q, segmento })); goTo(3); }
+  function handleScreen3(score: number) { setQuiz(q => ({ ...q, resposta_p1: score })); goTo(4); }
+  function handleScreen4(score: number) { setQuiz(q => ({ ...q, resposta_p2: score })); goTo(5); }
   function handleScreen5(score: number) {
     setQuiz(q => {
       const updated = { ...q, resposta_p3: score };
-      trackEvent('result_generated', {
-        score_total: updated.resposta_p1 + updated.resposta_p2 + score,
-        segmento: updated.segmento,
-      });
+      trackEvent('result_generated', { score_total: updated.resposta_p1 + updated.resposta_p2 + score, segmento: updated.segmento });
       return updated;
     });
     goTo(6);
   }
 
-  // Normalise scores for Screen6: treat -1 (unanswered) as 0 for display
   const displayState: QuizState = {
     ...quiz,
     resposta_p1: Math.max(0, quiz.resposta_p1),
@@ -850,131 +562,50 @@ export default function App() {
     segmento: quiz.segmento || 'vestuario',
   };
 
+  const frameStyle: React.CSSProperties = {
+    width: frameW,
+    height: frameH,
+    backgroundColor: D.bg,
+    borderRadius: showFrame ? 40 : 0,
+    overflow: 'hidden',
+    position: 'relative',
+    display: 'flex',
+    flexDirection: 'column',
+    boxShadow: showFrame ? '0 0 0 1px rgba(255,255,255,0.06), 0 40px 100px rgba(0,0,0,0.7)' : 'none',
+  };
+
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        backgroundColor: '#000000',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 20,
-        fontFamily: 'Inter,sans-serif',
-      }}
-    >
-      <div
-        style={{
-          position: 'fixed',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: 600,
-          height: 600,
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(255,210,63,0.06) 0%, transparent 70%)',
-          pointerEvents: 'none',
-        }}
-      />
+    <div style={{
+      minHeight: '100dvh',
+      backgroundColor: isMobile ? D.bg : '#000000',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontFamily: 'Inter,sans-serif',
+    }}>
+      {/* Ambient glow — desktop only */}
+      {showFrame && (
+        <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 600, height: 600, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,210,63,0.06) 0%, transparent 70%)', pointerEvents: 'none' }} />
+      )}
 
-      {/* Mobile frame */}
-      <div
-        style={{
-          width: 390,
-          height: 844,
-          backgroundColor: D.bg,
-          borderRadius: 44,
-          overflow: 'hidden',
-          position: 'relative',
-          boxShadow: '0 0 0 1px rgba(255,255,255,0.06), 0 40px 100px rgba(0,0,0,0.7), 0 8px 30px rgba(0,0,0,0.5)',
-        }}
-      >
-        {/* Notch */}
-        <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: 126,
-            height: 36,
-            backgroundColor: '#000000',
-            borderBottomLeftRadius: 22,
-            borderBottomRightRadius: 22,
-            zIndex: 10,
-          }}
-        />
+      <div style={frameStyle}>
+        {/* Notch — desktop only */}
+        {showFrame && (
+          <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 120, height: 32, backgroundColor: '#000000', borderBottomLeftRadius: 20, borderBottomRightRadius: 20, zIndex: 10 }} />
+        )}
 
-        <div style={{ height: '100%', paddingTop: 36, boxSizing: 'border-box' }}>
+        {/* Screen content */}
+        <div style={{ flex: 1, paddingTop: showFrame ? 32 : 0, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
           {screen === 1 && <Screen1 onNext={handleScreen1} />}
           {screen === 2 && <Screen2 initialValue={quiz.segmento} onNext={handleScreen2} />}
-          {screen === 3 && (
-            <QuestionScreen
-              step={2}
-              tag="WhatsApp Commerce"
-              title="Como sua marca usa o WhatsApp hoje?"
-              options={q1Options}
-              initialIndex={quiz.resposta_p1}
-              onNext={handleScreen3}
-            />
-          )}
-          {screen === 4 && (
-            <QuestionScreen
-              step={3}
-              tag="Atendimento"
-              title="Como é o atendimento via chat hoje?"
-              options={q2Options}
-              initialIndex={quiz.resposta_p2}
-              onNext={handleScreen4}
-            />
-          )}
-          {screen === 5 && (
-            <QuestionScreen
-              step={4}
-              tag="Campanhas Ativas"
-              title="Como você usa o WhatsApp para campanhas ativas?"
-              options={q3Options}
-              initialIndex={quiz.resposta_p3}
-              onNext={handleScreen5}
-              nextLabel="Ver meu diagnóstico"
-            />
-          )}
+          {screen === 3 && <QuestionScreen step={2} tag="WhatsApp Commerce" title="Como sua marca usa o WhatsApp hoje?" options={q1Options} initialIndex={quiz.resposta_p1} onNext={handleScreen3} />}
+          {screen === 4 && <QuestionScreen step={3} tag="Atendimento" title="Como é o atendimento via chat hoje?" options={q2Options} initialIndex={quiz.resposta_p2} onNext={handleScreen4} />}
+          {screen === 5 && <QuestionScreen step={4} tag="Campanhas Ativas" title="Como você usa o WhatsApp para campanhas ativas?" options={q3Options} initialIndex={quiz.resposta_p3} onNext={handleScreen5} nextLabel="Ver meu diagnóstico" />}
           {screen === 6 && <Screen6 state={displayState} />}
         </div>
-      </div>
 
-      {/* Navigation dots */}
-      <div
-        style={{
-          position: 'fixed',
-          bottom: 28,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          display: 'flex',
-          gap: 8,
-          backgroundColor: 'rgba(255,255,255,0.06)',
-          backdropFilter: 'blur(16px)',
-          border: '1px solid rgba(255,255,255,0.08)',
-          padding: '10px 18px',
-          borderRadius: 999,
-        }}
-      >
-        {([1, 2, 3, 4, 5, 6] as Screen[]).map(s => (
-          <button
-            key={s}
-            onClick={() => goTo(s)}
-            title={`Tela ${s}`}
-            style={{
-              width: screen === s ? 22 : 7,
-              height: 7,
-              borderRadius: 999,
-              border: 'none',
-              backgroundColor: screen === s ? D.yellow : 'rgba(255,255,255,0.2)',
-              cursor: 'pointer',
-              transition: 'all 0.25s ease',
-              padding: 0,
-            }}
-          />
-        ))}
+        {/* Nav dots — always inside frame */}
+        <NavDots screen={screen} goTo={goTo} />
       </div>
     </div>
   );
