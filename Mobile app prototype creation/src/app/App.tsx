@@ -330,7 +330,7 @@ function Screen1({ onNext }: { onNext: (nome: string, email: string) => void }) 
       >
         <div style={{ position: 'absolute', top: -20, right: -20, width: 100, height: 100, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,210,63,0.18) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div style={{ display: 'inline-block', backgroundColor: D.yellow, color: D.ink, fontSize: 9, fontWeight: 800, letterSpacing: 1.2, textTransform: 'uppercase', padding: '3px 10px', borderRadius: 999, marginBottom: 10, fontFamily: 'Inter,sans-serif' }}>
-          Chat Commerce Report 2025
+          Chat Commerce Report 2026
         </div>
         <h1 style={{ color: D.textPrimary, fontSize: 17, fontWeight: 800, lineHeight: 1.25, marginBottom: 8, fontFamily: 'Inter,sans-serif' }}>
           Qual é o nível de maturidade do seu chat commerce?
@@ -513,7 +513,7 @@ function Screen6({ state }: { state: QuizState }) {
                 <span style={{ color: D.orange, fontWeight: 800 }}>{benchmark.pct}%</span>{' '}
                 do GMV influenciado pelo WhatsApp.
               </p>
-              <p style={{ fontSize: 10, color: D.textMuted, fontFamily: 'Inter,sans-serif', margin: 0 }}>Fonte: Chat Commerce Report 2025 — OmniChat</p>
+              <p style={{ fontSize: 10, color: D.textMuted, fontFamily: 'Inter,sans-serif', margin: 0 }}>Fonte: Chat Commerce Report 2026 — OmniChat</p>
             </div>
           </div>
         </div>
