@@ -55,7 +55,7 @@ interface QuizState {
   resposta_p1: number;
   resposta_p2: number;
   resposta_p3: number;
-  horario_consultoria: string;
+  janela_interesse: string;
 }
 
 // ── Viewport hook ─────────────────────────────────────────────────────────────
@@ -123,10 +123,10 @@ const q3Options = [
   { id: 'q3d', label: 'Campanhas segmentadas com recuperação de carrinho automatizada' },
 ];
 
-const horarios = [
-  { id: 'h1', label: '10h — 10h30' },
-  { id: 'h2', label: '14h — 14h30' },
-  { id: 'h3', label: '16h — 16h30' },
+const janelas = [
+  { id: 'manha',       label: 'Manhã — 10h às 12h' },
+  { id: 'tarde_inicio', label: 'Início da tarde — 14h às 16h' },
+  { id: 'tarde_fim',   label: 'Final da tarde — 16h às 18h' },
 ];
 
 // ── Logic ────────────────────────────────────────────────────────────────────
@@ -431,7 +431,7 @@ function QuestionScreen({ step, tag, title, options, initialIndex, onNext, nextL
 // ── Screen 6 — Resultado ─────────────────────────────────────────────────────
 
 function Screen6({ state }: { state: QuizState }) {
-  const [horario, setHorario] = useState(state.horario_consultoria);
+  const [janela, setJanela] = useState(state.janela_interesse);
   const [confirmed, setConfirmed] = useState(false);
 
   const score = state.resposta_p1 + state.resposta_p2 + state.resposta_p3;
@@ -440,7 +440,7 @@ function Screen6({ state }: { state: QuizState }) {
 
   function handleConfirm() {
     setConfirmed(true);
-    trackEvent('consultation_scheduled', { horario, segmento: state.segmento, score });
+    trackEvent('consultation_scheduled', { janela_interesse: janela, segmento: state.segmento, score });
   }
 
   return (
@@ -493,20 +493,20 @@ function Screen6({ state }: { state: QuizState }) {
           Quer evoluir sua operação na prática?
         </h3>
         <p style={{ fontSize: 11, color: D.textSecondary, lineHeight: 1.45, marginBottom: 10, fontFamily: 'Inter,sans-serif' }}>
-          Nossa equipe no estande da OmniChat no FECBR vai chegar preparada com seu diagnóstico. Escolha um horário.
+          Nossa equipe vai estar no estande da OmniChat no FECBR 2026. Diga em qual horário você pretende passar por lá e deixaremos um consultor disponível preparado com o seu diagnóstico.
         </p>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 10, flexShrink: 0 }}>
-          {horarios.map(({ id, label }) => (
-            <SelectCard key={id} selected={horario === id} onClick={() => setHorario(id)}>
+          {janelas.map(({ id, label }) => (
+            <SelectCard key={id} selected={janela === id} onClick={() => setJanela(id)}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px' }}>
-                <div style={{ width: 28, height: 28, borderRadius: 7, backgroundColor: horario === id ? D.yellow : D.surfaceHover, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'background-color 0.15s' }}>
-                  <Clock size={13} color={horario === id ? D.ink : D.textSecondary} />
+                <div style={{ width: 28, height: 28, borderRadius: 7, backgroundColor: janela === id ? D.yellow : D.surfaceHover, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'background-color 0.15s' }}>
+                  <Clock size={13} color={janela === id ? D.ink : D.textSecondary} />
                 </div>
-                <span style={{ fontSize: 13, fontWeight: 700, color: horario === id ? D.textPrimary : D.textSecondary, fontFamily: 'Inter,sans-serif', transition: 'color 0.15s' }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: janela === id ? D.textPrimary : D.textSecondary, fontFamily: 'Inter,sans-serif', transition: 'color 0.15s' }}>
                   {label}
                 </span>
-                {horario === id && <CheckCircle2 size={14} color={D.yellow} style={{ marginLeft: 'auto' }} />}
+                {janela === id && <CheckCircle2 size={14} color={D.yellow} style={{ marginLeft: 'auto' }} />}
               </div>
             </SelectCard>
           ))}
@@ -515,16 +515,16 @@ function Screen6({ state }: { state: QuizState }) {
         {confirmed ? (
           <div style={{ width: '100%', padding: '13px 24px', borderRadius: 999, backgroundColor: 'rgba(37,211,102,0.15)', border: `1.5px solid rgba(37,211,102,0.35)`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, boxSizing: 'border-box', flexShrink: 0 }}>
             <CheckCircle2 size={16} color={D.green} />
-            <span style={{ fontSize: 13, fontWeight: 800, color: D.green, fontFamily: 'Inter,sans-serif' }}>Consultoria confirmada!</span>
+            <span style={{ fontSize: 13, fontWeight: 800, color: D.green, fontFamily: 'Inter,sans-serif' }}>Interesse confirmado!</span>
           </div>
         ) : (
-          <PrimaryButton onClick={horario ? handleConfirm : undefined} disabled={!horario}>
-            Confirmar minha consultoria <ArrowRight size={15} />
+          <PrimaryButton onClick={janela ? handleConfirm : undefined} disabled={!janela}>
+            Confirmar meu interesse <ArrowRight size={15} />
           </PrimaryButton>
         )}
 
         <p style={{ textAlign: 'center', fontSize: 10, color: D.textMuted, marginTop: 8, fontFamily: 'Inter,sans-serif' }}>
-          Você receberá a confirmação no e-mail informado.
+          Você receberá um lembrete no e-mail informado com o nome do consultor que vai te receber.
         </p>
       </div>
     </div>
@@ -540,7 +540,7 @@ const INITIAL_STATE: QuizState = {
   resposta_p1: -1,
   resposta_p2: -1,
   resposta_p3: -1,
-  horario_consultoria: '',
+  janela_interesse: '',
 };
 
 export default function App() {
